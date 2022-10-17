@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 
 class MovieController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('auth')->only(['create', 'store', 'destroy']);
+    }
+    
     public function index()
     {
         $movies = Movie::all();
@@ -91,7 +91,8 @@ class MovieController extends Controller
      */
     public function destroy(Movie $movie)
     {
-        //
+        $movie->delete();
+        return redirect()->route('movies.index');
     }
 
     public function movie_cast_store(Request $request, Movie $movie) {
@@ -104,7 +105,8 @@ class MovieController extends Controller
         return back();
     }
 
-    public function movie_cast_destroy() {
-        
+    public function movie_cast_destroy(Movie $movie, Cast $cast) {
+        $movie->casts()->detach($cast->id);
+        return back();
     }
 }

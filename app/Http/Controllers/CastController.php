@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 
 class CastController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('auth')->only(['store', 'destroy']);
+    }
+
     public function index()
     {
         //
@@ -55,7 +55,7 @@ class CastController extends Controller
      */
     public function show(Cast $cast)
     {
-        return view('casts.show');
+        return view('casts.show', compact('cast'));
     }
 
     /**
@@ -89,6 +89,7 @@ class CastController extends Controller
      */
     public function destroy(Cast $cast)
     {
-        //
+        $cast->delete();
+        return redirect()->route('movies.index');
     }
 }

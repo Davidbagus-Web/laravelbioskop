@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card my-5">
-        <img src="https://img1.hotstarext.com/image/upload/f_auto,t_hcdl/sources/r1/cms/prod/7155/1317155-h-e387fd45d3bf" class="card-image-top">
+        <img src="{{ $movie->image }}" class="card-image-top">
         <div class="card-body">
             <h1>{{ $movie->title }}</h1>
         <div class="text-danger">
@@ -13,39 +13,70 @@
             <p>{{ $movie->description }}</p>
 
             <h3>Cast
+              @auth
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <i class="fas fa-plus"></i>
               </button>
+              @endauth
             </h3>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item">Aulia Sarah - <span class="text-muted font-italic">Badarawuhi</span>
-                <form action="#" method="post">
-                  <button type="submit" class="btn btn-link text-danger">Delete</button>
-                </form>
+              @if (count($movie->casts))
+              @foreach ($movie->casts as $cast)
+              <li class="list-group-item">
+                <a href="{{ route('casts.show', $cast->id) }}">{{ $cast->name }}</a> - 
+                <span class="text-muted font-italic">{{ $cast->pivot->role }}</span>
+                @auth
+                    <form action="{{ route('movie_cast_destroy', [$movie->id, $cast->id]) }}" method="post">
+                        @csrf
+                        @method('delete')
+                        <button type="submit" class="btn btn-link text-danger">Delete</button>
+                    </form>
+                @endauth
               </li>
+              @endforeach
+              @else
+                  no casts.
+              @endif
               </ul>
 
               <h3>Comments</h3>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item"><b>Antok:</b>comingsson
-                <form action="#" method="post">
-                  <button type="submit" class="btn btn-link text-danger">Delete</button>
-                </form>
-              </li>
+                @if (count($movie->comments))
+                    @foreach ($movie->comments as $comment)
+                    <li class="list-group-item"><b>{{ $comment->user->name }}: </b>{{ $comment->content }}
+                      @auth
+                          <form action="{{ route('comments.destroy', $comment->id) }}" method="post">
+                              @csrf
+                              @method('delete')
+                              <button type="submit" class="btn btn-link text-danger">Delete</button>
+                          </form>
+                      @endauth
+                    </li> 
+                    @endforeach
+                @else
+                      No Comments itu si derita lu
+                @endif
               </ul>
-              <form action="#" method="POST">
-                <input type="text" class="form-control" placeholder="say something...">
+              <form action="{{ route('movies.comments.store', $movie->id) }}" method="POST">
+                @csrf
+                <input type="text" name="comment" class="form-control" placeholder="say something...">
                 <button type="submit" class="btn btn-primary mt-2 float-right">Comment</button>
               </form>
               
         </div>
-        <div class="card-footer">
-            <form action="#" method="POST">
-                <button type="submit" class="btn btn-link float-right">Delete</button>
-            </form>
+        @auth
+            <div class="card-footer">
+                <form action="{{ route('movies.destroy', $movie->id) }}" method="POST">
+                      @csrf
+                      @method('delete')
+                      <button type="submit" class="btn btn-link float-right">Delete</button>
+                </form>
         </div>
+        @endauth
+        <a href="/movies" class="btn btn-link float-right">kembali ke halaman movie</a>
     </div>
 
+    @auth
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -98,4 +129,5 @@
         </div>
       </div>
     </div>
+    @endauth
 @endsection

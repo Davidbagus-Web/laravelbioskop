@@ -2,7 +2,9 @@
 
 @section('content')
     <h1>All Movies 
-        <a href="{{ 'movies/create' }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i></a>
+        @auth
+        <a href="{{ 'movies/create' }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i></a> 
+        @endauth
     </h1>
     @unless (count($movies))
     <p>No movies</p>

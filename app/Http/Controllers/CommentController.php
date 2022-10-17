@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movie;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('auth')->only(['store', 'destroy']);
+    }
+
     public function index()
     {
         //
@@ -33,9 +35,15 @@ class CommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Movie $movie)
     {
-        //
+        $request->validate(['comment' => 'required']);
+        Comment::create([
+            'user_id' => Auth::user()->id,
+            'movie_id' => $movie->id,
+            'content' => $request->comment
+        ]);
+        return back();
     }
 
     /**
@@ -80,6 +88,10 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        if ($comment->user->id !== Auth::user()->id) {
+            abort(403);
+        }
+            $comment->delete();
+            return back();
     }
 }
